@@ -2,13 +2,15 @@ package academy.mischok.modules.modulbewertung.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
+@Getter
+@Setter
 @Entity
 public class Module {
     @Id
