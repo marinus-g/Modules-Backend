@@ -47,4 +47,19 @@ public class ModuleController {
         moduleService.deleteModule(id);
         return "redirect:/modules";
     }
+
+    @GetMapping("/edit/{id}")
+    public String editModuleForm(@PathVariable Long id, Model model) {
+        Module module = moduleService.getModule(id).orElse(null);
+        model.addAttribute("module", module);
+        return "module/edit_form";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String editModule(@PathVariable Long id, @ModelAttribute Module module) {
+        module.setId(id); // Ensure the correct ID is set
+        moduleService.saveModule(module); // Update the module
+        return "redirect:/modules/{id}";
+    }
+
 }
