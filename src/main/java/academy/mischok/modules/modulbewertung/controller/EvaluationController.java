@@ -3,48 +3,35 @@ package academy.mischok.modules.modulbewertung.controller;
 import academy.mischok.modules.modulbewertung.model.Evaluation;
 import academy.mischok.modules.modulbewertung.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/evaluations")
+@RestController
+@RequestMapping("/api/evaluations")
 public class EvaluationController {
 
     @Autowired
     private EvaluationService evaluationService;
 
     @GetMapping
-    public String getAllEvaluations(Model model) {
-        List<Evaluation> evaluations = evaluationService.getAllEvaluations();
-        model.addAttribute("evaluations", evaluations);
-        return "evaluation/list";
+    public List<Evaluation> getAllEvaluations() {
+        return evaluationService.getAllEvaluations();
     }
 
     @GetMapping("/{id}")
-    public String getEvaluation(@PathVariable Long id, Model model) {
-        Evaluation evaluation = evaluationService.getEvaluation(id).orElse(null);
-        model.addAttribute("evaluation", evaluation);
-        return "evaluation/detail";
-    }
-
-    @GetMapping("/new")
-    public String newEvaluationForm(Model model) {
-        model.addAttribute("evaluation", new Evaluation());
-        return "evaluation/form";
+    public Optional<Evaluation> getEvaluation(@PathVariable Long id) {
+        return evaluationService.getEvaluation(id);
     }
 
     @PostMapping
-    public String saveEvaluation(@ModelAttribute Evaluation evaluation) {
-        evaluationService.saveEvaluation(evaluation);
-        return "redirect:/evaluations";
+    public Evaluation saveEvaluation(@RequestBody Evaluation evaluation) {
+        return evaluationService.saveEvaluation(evaluation);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteEvaluation(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public void deleteEvaluation(@PathVariable Long id) {
         evaluationService.deleteEvaluation(id);
-        return "redirect:/evaluations";
     }
 }
