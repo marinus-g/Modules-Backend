@@ -3,63 +3,35 @@ package academy.mischok.modules.modulbewertung.controller;
 import academy.mischok.modules.modulbewertung.model.Module;
 import academy.mischok.modules.modulbewertung.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/modules")
+@RestController
+@RequestMapping("/api/modules")
 public class ModuleController {
 
     @Autowired
     private ModuleService moduleService;
 
     @GetMapping
-    public String getAllModules(Model model) {
-        List<Module> modules = moduleService.getAllModules();
-        model.addAttribute("modules", modules);
-        return "module/list";
+    public List<Module> getAllModules() {
+        return moduleService.getAllModules();
     }
 
     @GetMapping("/{id}")
-    public String getModule(@PathVariable Long id, Model model) {
-        Module module = moduleService.getModule(id).orElse(null);
-        model.addAttribute("module", module);
-        return "module/detail";
-    }
-
-    @GetMapping("/new")
-    public String newModuleForm(Model model) {
-        model.addAttribute("module", new Module());
-        return "module/form";
+    public Optional<Module> getModule(@PathVariable Long id) {
+        return moduleService.getModule(id);
     }
 
     @PostMapping
-    public String saveModule(@ModelAttribute Module module) {
-        moduleService.saveModule(module);
-        return "redirect:/modules";
+    public Module saveModule(@RequestBody Module module) {
+        return moduleService.saveModule(module);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteModule(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public void deleteModule(@PathVariable Long id) {
         moduleService.deleteModule(id);
-        return "redirect:/modules";
     }
-
-    @GetMapping("/edit/{id}")
-    public String editModuleForm(@PathVariable Long id, Model model) {
-        Module module = moduleService.getModule(id).orElse(null);
-        model.addAttribute("module", module);
-        return "module/edit_form";
-    }
-
-    @PostMapping("/edit/{id}")
-    public String editModule(@PathVariable Long id, @ModelAttribute Module module) {
-        module.setId(id); // Ensure the correct ID is set
-        moduleService.saveModule(module); // Update the module
-        return "redirect:/modules/{id}";
-    }
-
 }
