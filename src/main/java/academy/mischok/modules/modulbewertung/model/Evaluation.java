@@ -2,11 +2,15 @@ package academy.mischok.modules.modulbewertung.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 public class Evaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +22,7 @@ public class Evaluation {
     @JoinColumn(name = "module_id")
     private Module module;
 
-    // Getter und Setter
+
 
     public double getTotalScore() {
         return (projectScore * 0.5) + (examScore * 0.5);
