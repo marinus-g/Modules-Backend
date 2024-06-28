@@ -38,43 +38,18 @@ public class ModuleControllerTest {
     }
 
     @Test
-    public void testEditModuleForm() throws Exception {
-        Module module = new Module(1L, "Module 1", null);
-
-        given(moduleService.getModule(anyLong())).willReturn(Optional.of(module));
-
-        this.mockMvc.perform(get("/modules/edit/1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("module/edit_form"))
-                .andExpect(model().attributeExists("module"))
-                .andExpect(model().attribute("module", module));
-    }
-
-    @Test
-    public void testEditModule() throws Exception {
-        Module module = new Module(1L, "Module 1", null);
-
-        given(moduleService.saveModule(any(Module.class))).willReturn(module);
-
-        this.mockMvc.perform(post("/modules/edit/1")
-                        .param("id", "1")
-                        .param("name", "Updated Module Name"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/modules/1"));
-    }
-
-    @Test
     public void testGetAllModules() throws Exception {
         Module module1 = new Module(1L, "Module 1", null);
         Module module2 = new Module(2L, "Module 2", null);
 
         given(moduleService.getAllModules()).willReturn(Arrays.asList(module1, module2));
 
-        this.mockMvc.perform(get("/modules"))
+        this.mockMvc.perform(get("/api/modules"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("module/list"))
-                .andExpect(model().attributeExists("modules"))
-                .andExpect(model().attribute("modules", Arrays.asList(module1, module2)));
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Module 1"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].name").value("Module 2"));
     }
 
     @Test
@@ -83,25 +58,29 @@ public class ModuleControllerTest {
 
         given(moduleService.getModule(anyLong())).willReturn(Optional.of(module));
 
-        this.mockMvc.perform(get("/modules/1"))
+        this.mockMvc.perform(get("/api/modules/1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("module/detail"))
-                .andExpect(model().attributeExists("module"))
-                .andExpect(model().attribute("module", module));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Module 1"));
     }
 
     @Test
-    public void testNewModuleForm() throws Exception {
-        this.mockMvc.perform(get("/modules/new"))
+    public void testSaveModule() throws Exception {
+        Module module = new Module(1L, "Module 1", null);
+
+        given(moduleService.saveModule(module)).willReturn(module);
+
+        this.mockMvc.perform(post("/api/modules")
+                        .contentType("application/json")
+                        .content("{\"name\":\"Module 1\"}"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("module/form"))
-                .andExpect(model().attributeExists("module"));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Module 1"));
     }
 
     @Test
     public void testDeleteModule() throws Exception {
-        this.mockMvc.perform(get("/modules/delete/1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/modules"));
+        this.mockMvc.perform(delete("/api/modules/1"))
+                .andExpect(status().isOk());
     }
 }
