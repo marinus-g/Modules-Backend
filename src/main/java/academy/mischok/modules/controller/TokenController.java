@@ -59,12 +59,14 @@ public class TokenController {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<Map> response = restTemplate.postForEntity(tokenUri, entity, Map.class);
+        /*
         final Cookie cookie = new Cookie("access_token", response.getBody().get("access_token").toString());
         cookie.setSecure(true);
         cookie.setMaxAge(3600);
         cookie.setPath("/");
         cookie.setHttpOnly(false);
         httpServletResponse.addCookie(cookie);
+         */
         return ResponseEntity.ok(response.getBody());
     }
 }
