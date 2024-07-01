@@ -9,7 +9,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
 
 @Configuration
-public class WebSecurityConfiguration {+
+public class WebSecurityConfiguration {
 
     private final String redirectUrl;
 
