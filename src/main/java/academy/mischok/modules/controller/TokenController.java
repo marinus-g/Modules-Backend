@@ -63,6 +63,8 @@ public class TokenController {
         cookie.setSecure(true);
         cookie.setMaxAge(3600);
         cookie.setDomain("localhost");
+        cookie.setPath("/");
+        cookie.setHttpOnly(false);
         httpServletResponse.addCookie(cookie);
         return ResponseEntity.ok(response.getBody());
     }
