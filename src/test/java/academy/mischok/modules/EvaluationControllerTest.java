@@ -1,5 +1,6 @@
 package academy.mischok.modules;
 
+import academy.mischok.modules.controller.EvaluationController;
 import academy.mischok.modules.model.Evaluation;
 import academy.mischok.modules.service.EvaluationService;
 import org.junit.jupiter.api.BeforeEach;

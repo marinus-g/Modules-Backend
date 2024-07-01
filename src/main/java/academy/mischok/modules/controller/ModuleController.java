@@ -1,4 +1,4 @@
-package academy.mischok.modules;
+package academy.mischok.modules.controller;
 
 import academy.mischok.modules.model.Module;
 import academy.mischok.modules.service.ModuleService;
