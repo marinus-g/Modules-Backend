@@ -8,7 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
-@Configuration
+//@Configuration
 public class WebSecurityConfiguration {
 
     private final String redirectUrl;
@@ -35,7 +35,7 @@ public class WebSecurityConfiguration {
                         .oauth2Login(configurer ->  {
                             configurer
                                     .loginPage("/oauth2/authorization/microsoft")
-                                    .defaultSuccessUrl("/home", false);
+                                    .defaultSuccessUrl(redirectUrl, false);
                         })
                         .authorizeHttpRequests(configurer -> {
                             configurer
