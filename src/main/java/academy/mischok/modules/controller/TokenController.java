@@ -39,6 +39,7 @@ public class TokenController {
 
     @PostMapping()
     public ResponseEntity<Map<String, Object>> getToken(@RequestBody Map<String, String> params) {
+        System.out.println("HELLOWORLD");
         String code = params.get("code");
 
         RestTemplate restTemplate = new RestTemplate();
