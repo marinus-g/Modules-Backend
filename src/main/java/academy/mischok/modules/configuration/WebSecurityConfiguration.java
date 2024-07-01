@@ -21,11 +21,12 @@ public class WebSecurityConfiguration {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/login", "/error").permitAll()
+                                .requestMatchers("/auth/microsoft", "/error").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
+                                .loginPage("/auth/microsoft")
                                 .defaultSuccessUrl(this.redirectUrl, true) // Redirect to Angular app
                 )
                 .logout(logout ->
