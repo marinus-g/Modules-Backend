@@ -62,7 +62,6 @@ public class TokenController {
         final Cookie cookie = new Cookie("access_token", response.getBody().get("access_token").toString());
         cookie.setSecure(true);
         cookie.setMaxAge(3600);
-        cookie.setDomain("localhost");
         cookie.setPath("/");
         cookie.setHttpOnly(false);
         httpServletResponse.addCookie(cookie);
