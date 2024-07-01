@@ -37,7 +37,7 @@ public class TokenController {
         this.clientRegistrationRepository = clientRegistrationRepository;
     }
 
-    @PostMapping("")
+    @PostMapping()
     public ResponseEntity<Map<String, Object>> getToken(@RequestBody Map<String, String> params) {
         String code = params.get("code");
 
