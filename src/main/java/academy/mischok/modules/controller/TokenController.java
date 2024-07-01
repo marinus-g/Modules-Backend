@@ -1,5 +1,7 @@
 package academy.mischok.modules.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +40,7 @@ public class TokenController {
     }
 
     @PostMapping()
-    public ResponseEntity<Map<String, Object>> getToken(@RequestBody Map<String, String> params) {
+    public ResponseEntity<Map<String, Object>> getToken(HttpServletResponse httpServletResponse, @RequestBody Map<String, String> params) {
         System.out.println("HELLOWORLD");
         String code = params.get("code");
 
@@ -57,7 +59,10 @@ public class TokenController {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
         ResponseEntity<Map> response = restTemplate.postForEntity(tokenUri, entity, Map.class);
-
+        final Cookie cookie = new Cookie("access_token", response.getBody().get("access_token").toString());
+        cookie.setSecure(true);
+        cookie.setMaxAge(3600);
+        httpServletResponse.addCookie(cookie);
         return ResponseEntity.ok(response.getBody());
     }
 }
