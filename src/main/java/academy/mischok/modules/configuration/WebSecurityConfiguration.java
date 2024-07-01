@@ -22,7 +22,7 @@ public class WebSecurityConfiguration {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/error", "/hello").permitAll()
+                                .requestMatchers("/error", "/oauth/token/").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2Login ->
