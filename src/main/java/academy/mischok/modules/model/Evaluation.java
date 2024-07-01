@@ -1,4 +1,4 @@
-package academy.mischok.modules.modulbewertung.model;
+package academy.mischok.modules.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

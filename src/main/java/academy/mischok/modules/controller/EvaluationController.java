@@ -1,7 +1,7 @@
-package academy.mischok.modules.modulbewertung.controller;
+package academy.mischok.modules.controller;
 
-import academy.mischok.modules.modulbewertung.model.Evaluation;
-import academy.mischok.modules.modulbewertung.service.EvaluationService;
+import academy.mischok.modules.model.Evaluation;
+import academy.mischok.modules.service.EvaluationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
