@@ -19,3 +19,12 @@ spring:
 logging:
   level:
     root: debug
+server:
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        secure: true
+        http-only: true
+        same-site: None
+        domain: /
