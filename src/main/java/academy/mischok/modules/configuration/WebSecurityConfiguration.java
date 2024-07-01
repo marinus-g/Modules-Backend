@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfiguration {
 
     private final String redirectUrl;
-    public WebSecurityConfiguration(@Value("${spring.cloud.azure.active-directory.redirect-uri-template}") String redirectUrl) {
+    public WebSecurityConfiguration(@Value("${spring.security.oauth2.client.registration.azure.redirect-uri}") String redirectUrl) {
         this.redirectUrl = redirectUrl;
     }
 
