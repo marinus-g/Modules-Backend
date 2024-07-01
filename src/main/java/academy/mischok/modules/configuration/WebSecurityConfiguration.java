@@ -21,7 +21,7 @@ public class WebSecurityConfiguration {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/auth/microsoft", "/error").permitAll()
+                                .requestMatchers( "/error").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2Login ->
