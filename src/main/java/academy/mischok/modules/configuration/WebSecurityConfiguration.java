@@ -26,7 +26,6 @@ public class WebSecurityConfiguration {
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .loginPage("/auth/microsoft")
                                 .defaultSuccessUrl(this.redirectUrl, true) // Redirect to Angular app
                 )
                 .logout(logout ->
