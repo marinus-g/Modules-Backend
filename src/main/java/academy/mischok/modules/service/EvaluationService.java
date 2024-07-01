@@ -1,7 +1,7 @@
-package academy.mischok.modules.modulbewertung.service;
+package academy.mischok.modules.service;
 
-import academy.mischok.modules.modulbewertung.model.Evaluation;
-import academy.mischok.modules.modulbewertung.repository.EvaluationRepository;
+import academy.mischok.modules.model.Evaluation;
+import academy.mischok.modules.repository.EvaluationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,7 @@
 package academy.mischok.modules;
 
-import academy.mischok.modules.modulbewertung.controller.EvaluationController;
-import academy.mischok.modules.modulbewertung.model.Evaluation;
-import academy.mischok.modules.modulbewertung.service.EvaluationService;
+import academy.mischok.modules.model.Evaluation;
+import academy.mischok.modules.service.EvaluationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
