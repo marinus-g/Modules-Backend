@@ -19,3 +19,12 @@ spring:
 logging:
   level:
     root: debug
+server:
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        secure: true  # Ensure this is set to true if using HTTPS
+        http-only: true
+        same-site: None
+
