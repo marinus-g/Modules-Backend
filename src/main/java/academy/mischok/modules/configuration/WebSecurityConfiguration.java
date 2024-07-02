@@ -33,6 +33,7 @@ public class WebSecurityConfiguration {
                             configuration.setAllowCredentials(true);
                             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                             configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+
                             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                             source.registerCorsConfiguration("/**", configuration.applyPermitDefaultValues());
                             return configuration;
