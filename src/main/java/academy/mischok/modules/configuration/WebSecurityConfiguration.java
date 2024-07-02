@@ -17,11 +17,11 @@ import java.util.List;
 @EnableWebSecurity
 public class WebSecurityConfiguration {
 
-    private final String redirectUrl;
+  //  private final String redirectUrl;
 
-    public WebSecurityConfiguration(@Value("${spring.security.oauth2.client.registration.azure.redirect-uri}") String redirectUrl) {
-        this.redirectUrl = redirectUrl;
-    }
+    //public WebSecurityConfiguration(@Value("${spring.security.oauth2.client.registration.azure.redirect-uri}") String redirectUrl) {
+  //      this.redirectUrl = redirectUrl;
+  //  }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,8 +29,8 @@ public class WebSecurityConfiguration {
                 .cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(request -> {
                             CorsConfiguration configuration = new CorsConfiguration();
-                            //configuration.setAllowedOriginPatterns(List.of("*"));
-                            configuration.setAllowedOrigins(List.of("http://localhost:8080"));
+                            configuration.setAllowedOriginPatterns(List.of("*"));
+                         //   configuration.setAllowedOrigins(List.of("http://localhost:4200"));
                             configuration.setAllowCredentials(true);
                             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
                             configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
@@ -47,7 +47,7 @@ public class WebSecurityConfiguration {
                 )
                 .oauth2Login(oauth2Login ->
                         oauth2Login
-                                .defaultSuccessUrl(this.redirectUrl, true) // Redirect to Angular app
+                                .defaultSuccessUrl("http://localhost:4200/login/oauth2/code", true) // Redirect to Angular app
                 )
                 .logout(logout ->
                         logout
