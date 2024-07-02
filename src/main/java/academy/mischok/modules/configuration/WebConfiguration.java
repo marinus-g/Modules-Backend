@@ -19,6 +19,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                         HttpMethod.GET.name(),
                         HttpMethod.POST.name(),
                         HttpMethod.PUT.name(),
+                        HttpMethod.OPTIONS.name(),
                         HttpMethod.DELETE.name()
                 )
                 .maxAge(MAX_AGE)
