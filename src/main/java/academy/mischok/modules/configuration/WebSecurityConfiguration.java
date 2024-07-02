@@ -29,7 +29,7 @@ public class WebSecurityConfiguration {
                 .cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(request -> {
                             CorsConfiguration configuration = new CorsConfiguration();
-                            configuration.setAllowedOriginPatterns(List.of("*"));
+                            //configuration.setAllowedOriginPatterns(List.of("*"));
                             configuration.setAllowedOrigins(List.of("http://localhost:8080"));
                             configuration.setAllowCredentials(true);
                             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
