@@ -17,7 +17,9 @@ public class HelloWorldController {
 
     @GetMapping
     public ResponseEntity<List<String>> test(@AuthenticationPrincipal OidcUser user) {
-        return ResponseEntity.ok(List.of("Hello World", user.getFullName(), user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", "))));
+        System.out.println("Hello World " + user.getAuthorities().size());
+        return ResponseEntity.ok(List.of("Hello World", user.getFullName(), user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", "))));
     }
 
 }
