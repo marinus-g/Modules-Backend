@@ -97,8 +97,7 @@ public class WebSecurityConfiguration {
                 JsonNode responseBody = mapper.readTree(response.body());
 
                 for (JsonNode role : responseBody.get("value")) {
-                    String roleName = role.get("appRoleId").asText();
-                    // Optionally, you can map role IDs to role names using a predefined mapping
+                    String roleName = role.get("appRole").get("displayName").asText(); // Using the role's display name                    // Optionally, you can map role IDs to role names using a predefined mapping
                     mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleName));
                 }
             } catch (Exception e) {
