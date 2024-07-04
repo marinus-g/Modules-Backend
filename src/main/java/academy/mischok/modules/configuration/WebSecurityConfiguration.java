@@ -1,5 +1,7 @@
 package academy.mischok.modules.configuration;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -70,21 +76,35 @@ public class WebSecurityConfiguration {
     public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         return userRequest -> {
             OidcUser oidcUser = new OidcUserService().loadUser(userRequest);
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-            System.out.println("AUTHORITIEEEEEEEEEES");
-            oidcUser.getAuthorities().forEach(authority -> {
-                System.out.println(authority.getAuthority());
-                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
-                    OidcIdToken idToken = oidcUserAuthority.getIdToken();
-                    System.out.println("CLAIMSLALALA");
-                    idToken.getClaims().forEach((s, o) -> System.out.println(s + " - " + o));
-                    List<String> roles = idToken.getClaimAsStringList("roles");
-                    if (roles != null) {
-                        roles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
-                    }
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>(oidcUser.getAuthorities());
+
+            OidcIdToken idToken = oidcUser.getIdToken();
+            String accessToken = userRequest.getAccessToken().getTokenValue();
+
+            // Fetch groups from Microsoft Graph API
+            try {
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(new URI("https://graph.microsoft.com/v1.0/me/memberOf"))
+                        .header("Authorization", "Bearer " + accessToken)
+                        .header("Accept", "application/json")
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode responseBody = mapper.readTree(response.body());
+
+                for (JsonNode group : responseBody.get("value")) {
+                    String groupName = group.get("displayName").asText();
+                    mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + groupName));
                 }
-            });
-            return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return new DefaultOidcUser(mappedAuthorities, idToken, oidcUser.getUserInfo());
         };
     }
 }
