@@ -71,7 +71,9 @@ public class WebSecurityConfiguration {
         return userRequest -> {
             OidcUser oidcUser = new OidcUserService().loadUser(userRequest);
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+            System.out.println("AUTHORITIEEEEEEEEEES");
             oidcUser.getAuthorities().forEach(authority -> {
+                System.out.println(authority.getAuthority());
                 if (authority instanceof OidcUserAuthority oidcUserAuthority) {
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
                     System.out.println("CLAIMSLALALA");
