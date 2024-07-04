@@ -72,8 +72,7 @@ public class WebSecurityConfiguration {
             OidcUser oidcUser = new OidcUserService().loadUser(userRequest);
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
             oidcUser.getAuthorities().forEach(authority -> {
-                if (authority instanceof OidcUserAuthority) {
-                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
+                if (authority instanceof OidcUserAuthority oidcUserAuthority) {
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
                     List<String> roles = idToken.getClaimAsStringList("roles");
                     if (roles != null) {
@@ -81,7 +80,6 @@ public class WebSecurityConfiguration {
                     }
                 }
             });
-
             return new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
         };
     }
