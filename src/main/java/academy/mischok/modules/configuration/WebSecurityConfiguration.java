@@ -81,7 +81,6 @@ public class WebSecurityConfiguration {
             OidcIdToken idToken = oidcUser.getIdToken();
             String accessToken = userRequest.getAccessToken().getTokenValue();
 
-            // Fetch groups from Microsoft Graph API
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
@@ -101,7 +100,7 @@ public class WebSecurityConfiguration {
                     mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + groupName));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
 
             return new DefaultOidcUser(mappedAuthorities, idToken, oidcUser.getUserInfo());
