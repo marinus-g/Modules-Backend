@@ -56,7 +56,7 @@ public class WebSecurityConfiguration {
                 .oauth2Login(oauth2Login ->
                         oauth2Login
                                 .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.oidcUserService(oidcUserService()))
-                                .defaultSuccessUrl("https://academy-u202309-031-2febaeeb9a88.herokuapp.com/login/oauth2/code", true) // Redirect to Angular app
+                                .defaultSuccessUrl("https://academy-u202309-031-2febaeeb9a88.herokuapp.com/login/oauth2/code/azure", true) // Redirect to Angular app
 
                 )
                 .logout(logout ->
