@@ -3,20 +3,23 @@ spring:
     url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:postgres}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:postgres}
-  cloud:
-    azure:
-      active-directory:
-        enabled: true
-        profile:
-          tenant-id: {AZURE_TENANT_ID}
-        credential:
-          client-id: ${AZURE_CLIENT_ID}
-          client-secret: ${AZURE_CLIENT_SECRET}
-        authorization-clients:
-          graph:
-            scopes: https://graph.microsoft.com/openid, profile, email
-        redirect-uri-template: '{baseUrl}/login/oauth2/code/{registrationId}'
-
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            provider: azure
+            client-id: ${AZURE_CLIENT_ID}
+            client-secret: ${AZURE_CLIENT_SECRET}
+            #            scope: openid, profile, email, Group.Read.All
+            scope:
+              - openid
+              - profile
+              - email
+              - https://graph.microsoft.com/Group.Read.All
+        provider:
+          azure:
+            issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0
 logging:
   level:
     root: debug
