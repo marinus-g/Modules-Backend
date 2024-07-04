@@ -1,4 +1,4 @@
-package academy.mischok.modules.configuration;
+package academy.mischok.modules.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,7 +17,7 @@ public class HelloWorldController {
 
     @GetMapping
     public ResponseEntity<List<String>> test(@AuthenticationPrincipal OidcUser user) {
-        System.out.println("Hello World " + user.getAuthorities().size());
+        System.out.println("Hello World " + user.getClaimAsString("roles"));
         return ResponseEntity.ok(List.of("Hello World", user.getFullName(), user.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(", "))));
     }
