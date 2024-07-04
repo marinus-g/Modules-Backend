@@ -23,7 +23,7 @@ public class ModuleViewController {
     private final ModuleViewService moduleViewService;
     private final ClassModuleRepository classModuleRepository;
 
-    @GetMapping("/modules")
+    @GetMapping("/modules/{moduleId}")
     public ResponseEntity<List<ModuleOverviewDto>> getModuleOverviewByModuleId(@PathVariable Long moduleId) {
         List<ModuleOverviewDto> modules = moduleViewService.getModuleOverviewByModuleId(moduleId);
         return ResponseEntity.ok(modules);
