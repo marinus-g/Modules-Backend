@@ -24,7 +24,7 @@ public class ExamEntity {
     private ClassModuleEntity classModule;
 
     @OneToMany
-    private List<ExamMemberEntity> examMembers;
+    private List<ExamMemberEntity> examMember;
 
 
 }

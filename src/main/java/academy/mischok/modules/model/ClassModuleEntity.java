@@ -16,10 +16,9 @@ public class ClassModuleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Id
     private String classId;
 
-    private Date date;
+    private Date moduleDate;
 
     @OneToMany(mappedBy = "classModule")
     private List<ExamEntity> exams;

@@ -23,7 +23,7 @@ public class ProjectEntity {
 
     private String score;
 
-    private String grade;
+    private String projectGrade;
 
     @OneToMany(mappedBy = "project")
     private List<TeamEntity> teams;

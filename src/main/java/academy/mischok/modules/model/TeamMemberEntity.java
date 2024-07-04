@@ -17,7 +17,6 @@ public class TeamMemberEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Id
     private String userId;
 
     @OneToMany(mappedBy = "teamMember")

@@ -1,13 +1,17 @@
 package academy.mischok.modules.controller;
 
+import academy.mischok.modules.dtos.ModuleOverviewDto;
 import academy.mischok.modules.repository.ClassModuleRepository;
 import academy.mischok.modules.service.ModuleViewService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,17 +24,8 @@ public class ModuleViewController {
     private final ClassModuleRepository classModuleRepository;
 
     @GetMapping("/modules")
-    public List<ModuleData> getModules() {
-        return moduleViewService.getAllModules().stream()
-                .map(module -> {
-                    ModuleData data = new ModuleData();
-                    data.setName(module.getName());
-                    data.setDescription(module.getDescription());
-                    data.setDate(module.getClassModule().getDate());
-                    data.setExamGrades(module.getExam().getGrades());
-                    data.setProjectGrade(module.getProject().getGrade());
-                    return data;
-                })
-                .collect(Collectors.toList());
+    public ResponseEntity<List<ModuleOverviewDto>> getModuleOverviewByModuleId(@PathVariable Long moduleId) {
+        List<ModuleOverviewDto> modules = moduleViewService.getModuleOverviewByModuleId(moduleId);
+        return ResponseEntity.ok(modules);
     }
 }

@@ -17,7 +17,7 @@ public class ExamMemberEntity {
 
     private String score;
 
-    private String grade;
+    private String examGrade;
 
     @ManyToOne
     @JoinColumn(name = "exam_id")

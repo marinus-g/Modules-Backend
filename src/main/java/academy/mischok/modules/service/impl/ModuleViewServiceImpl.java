@@ -1,12 +1,7 @@
 package academy.mischok.modules.service.impl;
 
-import academy.mischok.modules.dtos.ClassModuleDto;
-import academy.mischok.modules.dtos.ExamMemberDto;
-import academy.mischok.modules.dtos.ModuleDto;
-import academy.mischok.modules.dtos.ProjectDto;
+import academy.mischok.modules.dtos.*;
 import academy.mischok.modules.model.ModuleEntity;
-import academy.mischok.modules.model.ExamMemberEntity;
-import academy.mischok.modules.model.ProjectEntity;
 import academy.mischok.modules.repository.ClassModuleRepository;
 import academy.mischok.modules.repository.ExamMemberRepository;
 import academy.mischok.modules.repository.ModuleRepository;
@@ -17,9 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -33,21 +28,25 @@ public class ModuleViewServiceImpl implements ModuleViewService {
     private final ProjectRepository projectRepository;
 
     @Override
-    public Optional<ModuleDto> getModuleById(Long id){
-        Optional<ModuleEntity> moduleEntityOptional = moduleRepository.findById(id);
+    public Optional<ModuleDto> getModuleByName(String name){
+        Optional<ModuleEntity> moduleEntityOptional = moduleRepository.findByName(name);
 
-        if(moduleEntityOptional.isPresent()) {
-            ModuleEntity moduleEntity = moduleEntityOptional.get();
+        return moduleEntityOptional.map(moduleEntity -> {
             ModuleDto moduleDto = new ModuleDto();
-
             moduleDto.setName(moduleEntity.getName());
             moduleDto.setDescription(moduleEntity.getDescription());
-
-            return Optional.of(moduleDto);
-        }
-
-        return Optional.empty();
+            return moduleDto;
+        });
     }
 
-
+    @Override
+    public List<ModuleOverviewDto> getModuleOverviewByModuleId(Long moduleId){
+        Optional<ModuleEntity> moduleEntityOptional = moduleRepository.findById(moduleId);
+        if (!moduleEntityOptional.isPresent()) {
+            return Collections.emptyList();
+        }
+        ModuleEntity moduleEntity = moduleEntityOptional.get();
+        List<ModuleOverviewDto> moduleOverviews = moduleRepository.findModuleOverviewByModuleId(moduleId);
+        return moduleOverviews;
+    }
 }
