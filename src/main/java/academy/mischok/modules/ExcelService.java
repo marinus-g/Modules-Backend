@@ -11,14 +11,16 @@ import java.util.List;
 public class ExcelService {
     @Autowired
     QuizRepository quizRepository;
+
     public void save(MultipartFile file) {
         try {
-            List<QuizExcelEntity> quizzes =ExcelHelper.excelToQuiz(file.getInputStream());
+            List<QuizExcelEntity> quizzes = ExcelHelper.excelToQuiz(file.getInputStream());
             quizRepository.saveAll(quizzes);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("fail to store excel data: " + e.getMessage());
         }
     }
+
     public List<QuizExcelEntity> getAllQuizzes() {
         return quizRepository.findAll();
     }
