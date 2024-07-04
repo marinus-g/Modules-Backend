@@ -81,11 +81,11 @@ public class WebSecurityConfiguration {
             OidcIdToken idToken = oidcUser.getIdToken();
             String accessToken = userRequest.getAccessToken().getTokenValue();
 
-            // Fetch groups from Microsoft Graph API
+            // Fetch roles from Microsoft Graph API
             try {
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(new URI("https://graph.microsoft.com/v1.0/me/memberOf"))
+                        .uri(new URI("https://graph.microsoft.com/v1.0/me/appRoleAssignments"))
                         .header("Authorization", "Bearer " + accessToken)
                         .header("Accept", "application/json")
                         .GET()
@@ -96,9 +96,10 @@ public class WebSecurityConfiguration {
                 ObjectMapper mapper = new ObjectMapper();
                 JsonNode responseBody = mapper.readTree(response.body());
 
-                for (JsonNode group : responseBody.get("value")) {
-                    String groupName = group.get("displayName").asText();
-                    mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + groupName));
+                for (JsonNode role : responseBody.get("value")) {
+                    String roleName = role.get("appRoleId").asText();
+                    // Optionally, you can map role IDs to role names using a predefined mapping
+                    mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + roleName));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
