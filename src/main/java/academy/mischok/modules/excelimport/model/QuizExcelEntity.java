@@ -1,4 +1,4 @@
-package academy.mischok.modules;
+package academy.mischok.modules.excelimport.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

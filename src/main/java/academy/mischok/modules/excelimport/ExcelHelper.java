@@ -1,5 +1,6 @@
-package academy.mischok.modules;
+package academy.mischok.modules.excelimport;
 
+import academy.mischok.modules.excelimport.model.QuizExcelEntity;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;

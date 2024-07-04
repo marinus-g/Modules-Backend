@@ -1,4 +1,4 @@
-package academy.mischok.modules;
+package academy.mischok.modules.excelimport;
 
 public class ResponseMessage {
     private String message;

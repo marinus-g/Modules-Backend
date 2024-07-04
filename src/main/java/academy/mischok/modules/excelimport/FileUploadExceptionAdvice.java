@@ -1,4 +1,4 @@
-package academy.mischok.modules;
+package academy.mischok.modules.excelimport;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
