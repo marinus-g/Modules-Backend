@@ -74,6 +74,7 @@ public class WebSecurityConfiguration {
             oidcUser.getAuthorities().forEach(authority -> {
                 if (authority instanceof OidcUserAuthority oidcUserAuthority) {
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
+                    idToken.getClaims().forEach((s, o) -> System.out.println(s + " - " + o));
                     List<String> roles = idToken.getClaimAsStringList("roles");
                     if (roles != null) {
                         roles.forEach(role -> mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
