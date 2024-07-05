@@ -21,6 +21,8 @@ public class AuthenticationController {
 
     @GetMapping("/authenticated")
     public ResponseEntity<AuthenticationDto> authenticated(@AuthenticationPrincipal OidcUser oidcUser) {
+        if (oidcUser == null)
+            return ResponseEntity.ok(new AuthenticationDto(false, null));
         return ResponseEntity.ok(new AuthenticationDto(true, oidcUser.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
