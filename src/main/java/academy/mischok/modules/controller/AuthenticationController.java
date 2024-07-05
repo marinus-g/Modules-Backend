@@ -26,6 +26,6 @@ public class AuthenticationController {
                 .map(GrantedAuthority::getAuthority)
                 .filter(s -> s.startsWith("ROLE_"))
                 .map(s -> s.replace("ROLE_", ""))
-                .findFirst().orElse("USER")));
+                .toList()));
     }
 }
