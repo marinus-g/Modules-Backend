@@ -5,18 +5,21 @@ import lombok.*;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Entity
 @Getter
 @Setter
-public class Module {
+public class ModuleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(length = 50, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    private List<Evaluation> evaluations;
+    @Column(length = 1000)
+    private String description;
+
+    @OneToMany(mappedBy = "module")
+    private List<ClassModuleEntity> classModules;
 }
