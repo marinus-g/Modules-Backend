@@ -15,6 +15,7 @@ public class MicrosoftGraphService {
         this.restTemplate = restTemplate;
     }
 
+
     public String getUserId(String accessToken) {
         String url = MICROSOFT_GRAPH_API_URL + "/me";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);

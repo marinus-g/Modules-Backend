@@ -5,11 +5,13 @@ import lombok.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
-public class ModuleEntity {
+@Builder
+public class Module {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +22,9 @@ public class ModuleEntity {
     @Column(length = 1000)
     private String description;
 
-    @OneToMany(mappedBy = "module")
-    private List<ClassModuleEntity> classModules;
+    @OneToMany
+    @JoinTable(name = "module_class",
+            joinColumns = @JoinColumn(name = "module_id"),
+            inverseJoinColumns = @JoinColumn(name = "class_id"))
+    private List<SchoolClass> classes;
 }
