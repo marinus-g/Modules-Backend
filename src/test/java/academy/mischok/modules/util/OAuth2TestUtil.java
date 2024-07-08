@@ -41,9 +41,33 @@ public class OAuth2TestUtil {
         OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(
                 principal,
                 principal.getAuthorities(),
-                "registrationId"
+                "random-id"
         );
         return SecurityMockMvcRequestPostProcessors.authentication(authenticationToken);
+    }
+
+
+    public static OidcUser createMockOidcUser() {
+        // Define claims for the ID token
+        Map<String, Object> claims = Map.of(
+                "sub", "random-id",
+                "name", "John Doe",
+                "email", "johndoe@example.com"
+        );
+
+        // Create a mock ID token with claims
+        OidcIdToken idToken = new OidcIdToken(
+                "tokenValue",
+                Instant.now(),
+                Instant.now().plusSeconds(3600),
+                claims
+        );
+
+        // Create a mock principal with authorities and ID token
+        return new DefaultOidcUser(
+                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                idToken
+        );
     }
 
 }

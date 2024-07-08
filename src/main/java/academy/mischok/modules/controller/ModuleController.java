@@ -8,6 +8,7 @@ import academy.mischok.modules.service.ModuleService;
 import com.azure.core.annotation.Delete;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -21,6 +22,7 @@ public class ModuleController {
     private final ModuleService moduleService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
     public ResponseEntity<Void> createModule(@RequestBody ModuleDto moduleDto) throws ModuleWithNameAlreadyExistsException {
         return ResponseEntity.created(URI.create(String.format("/module/%s",
                 this.moduleService.createModule(moduleDto).getId()))).build();
@@ -39,6 +41,7 @@ public class ModuleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
     public ResponseEntity<Void> deleteModule(@PathVariable Long id) throws ModuleNotFoundException {
         this.moduleService.deleteModule(id);
         return ResponseEntity.noContent().build();

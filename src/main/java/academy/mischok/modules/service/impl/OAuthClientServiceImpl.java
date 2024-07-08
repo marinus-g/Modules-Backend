@@ -21,7 +21,7 @@ public class OAuthClientServiceImpl implements OauthClientService {
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(
                 authentication.getAuthorizedClientRegistrationId(), authentication.getName());
         if (client == null) {
-            throw new IllegalStateException("No authorized client found");
+            throw new IllegalStateException( authorizedClientService.getClass().getName() +" No authorized client found " + authentication.getAuthorizedClientRegistrationId() + " " + authentication.getName());
         }
       return client.getAccessToken();
     }

@@ -18,8 +18,8 @@ public class OAuth2ClientConfiguration {
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(Collections.singletonList(
-                org.springframework.security.oauth2.client.registration.ClientRegistration.withRegistrationId("my-client-id")
-                        .clientId("client-id")
+                org.springframework.security.oauth2.client.registration.ClientRegistration.withRegistrationId("random-id")
+                        .clientId("random-id")
                         .clientSecret("client-secret")
                         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -37,5 +37,4 @@ public class OAuth2ClientConfiguration {
     public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
         return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository());
     }
-
 }
