@@ -3,6 +3,7 @@ package academy.mischok.modules.controller.advise;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -22,5 +23,10 @@ public class ControllerAdvisor {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception exception) {
         return ResponseEntity.status(500).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<String> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        return ResponseEntity.status(403).body(exception.getMessage());
     }
 }

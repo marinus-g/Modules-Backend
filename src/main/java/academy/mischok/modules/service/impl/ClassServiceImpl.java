@@ -34,7 +34,7 @@ public class ClassServiceImpl implements ClassService {
     private final SchoolClassRepository repository;
     private long lastFetch = 0;
 
-    public List<SchoolClass> findClasses(OAuth2AuthenticationToken authentication) {
+    public List<SchoolClass> findClasses() {
         fetchClasses();
         return repository.findAll();
     }
@@ -44,6 +44,21 @@ public class ClassServiceImpl implements ClassService {
         fetchClasses();
         return repository.findByClassId(name);
     }
+
+    @Override
+    public Optional<SchoolClass> findClassByUser(OAuth2AuthenticationToken token) {
+        fetchClasses();
+        return token
+                .getAuthorities()
+                .stream()
+                .filter(grantedAuthority -> grantedAuthority.getAuthority().startsWith("ROLE_"))
+                .map(grantedAuthority -> grantedAuthority.getAuthority().substring(5))
+                .filter(name -> name.startsWith("U") && name.endsWith("UFI"))
+                .findFirst()
+                .flatMap(repository::findByName);
+
+    }
+
     private void fetchClasses() {
         if (lastFetch + 1000 * 60 * 60 > System.currentTimeMillis()) {
             return;
@@ -58,8 +73,6 @@ public class ClassServiceImpl implements ClassService {
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new IllegalStateException("Failed to fetch classes");
         }
-        System.out.println("ASDFASDF");
-
         JsonObject object = JsonParser.parseString(response.getBody()).getAsJsonObject();
         lastFetch = System.currentTimeMillis();
         object.get("value").getAsJsonArray().asList().stream()
@@ -79,8 +92,5 @@ public class ClassServiceImpl implements ClassService {
                         repository.save(schoolClass);
                     });
                 });
-        for (SchoolClass schoolClass : repository.findAll()) {
-            System.out.println(schoolClass.getName());
-        }
     }
 }

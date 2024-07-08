@@ -33,7 +33,38 @@ public class OAuth2TestUtil {
 
         // Create a mock principal with authorities and ID token
         OidcUser principal = new DefaultOidcUser(
-                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_U20230901UFI")),
+                idToken
+        );
+
+        // Create an OAuth2AuthenticationToken with the mock principal
+        OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(
+                principal,
+                principal.getAuthorities(),
+                "random-id"
+        );
+        return SecurityMockMvcRequestPostProcessors.authentication(authenticationToken);
+    }
+
+    public static RequestPostProcessor mockLecturerOidcLogin() {
+        // Define claims for the ID token
+        Map<String, Object> claims = Map.of(
+                "sub", "random-id",
+                "name", "John Doe",
+                "email", "johndoe@example.com"
+        );
+
+        // Create a mock ID token with claims
+        OidcIdToken idToken = new OidcIdToken(
+                "tokenValue",
+                Instant.now(),
+                Instant.now().plusSeconds(3600),
+                claims
+        );
+
+        // Create a mock principal with authorities and ID token
+        OidcUser principal = new DefaultOidcUser(
+                List.of(new SimpleGrantedAuthority("ROLE_Dozentenkollegium")),
                 idToken
         );
 
@@ -65,7 +96,7 @@ public class OAuth2TestUtil {
 
         // Create a mock principal with authorities and ID token
         return new DefaultOidcUser(
-                List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_U20230901UFI")),
                 idToken
         );
     }

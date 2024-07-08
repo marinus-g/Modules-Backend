@@ -52,8 +52,7 @@ public abstract class AbstractControllerTest {
                         .withBodyFile("groups.json")));
     }
 
-    @BeforeEach
-    public void mockAuthClient() {
+    protected void mockAuthClient() {
         // Mock OidcUser
         OidcUser oidcUser = OAuth2TestUtil.createMockOidcUser();
 

@@ -15,5 +15,5 @@ public interface SchoolClassRepository extends JpaRepository<SchoolClass, Long> 
     List<SchoolClass> findByNameStartsWithIgnoreCase(@NonNull String name);
 
 
-
+    Optional<SchoolClass> findByName(String name);
 }
