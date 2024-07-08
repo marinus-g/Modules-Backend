@@ -1,32 +1,22 @@
 package academy.mischok.modules.service;
 
+import academy.mischok.modules.dto.ModuleDto;
+import academy.mischok.modules.exception.ModuleNotFoundException;
+import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
 import academy.mischok.modules.model.Module;
-import academy.mischok.modules.repository.ModuleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class ModuleService {
+public interface ModuleService {
 
-    @Autowired
-    private ModuleRepository moduleRepository;
+    Module createModule(ModuleDto moduleDto) throws ModuleWithNameAlreadyExistsException;
 
-    public List<Module> getAllModules() {
-        return moduleRepository.findAll();
-    }
+    List<Module> findModulesByNameLike(String name);
 
-    public Optional<Module> getModule(Long id) {
-        return moduleRepository.findById(id);
-    }
+    List<Module> findModules();
 
-    public Module saveModule(Module module) {
-        return moduleRepository.save(module);
-    }
+    Optional<Module> findModuleById(Long id);
 
-    public void deleteModule(Long id) {
-        moduleRepository.deleteById(id);
-    }
+    void deleteModule(Long id) throws ModuleNotFoundException;
 }

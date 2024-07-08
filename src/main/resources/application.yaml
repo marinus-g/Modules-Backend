@@ -31,4 +31,6 @@ server:
         secure: true  # Ensure this is set to true if using HTTPS
         http-only: true
         same-site: None
+microsoft:
+  graph-url: https://graph.microsoft.com
 

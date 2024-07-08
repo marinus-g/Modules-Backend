@@ -1,37 +1,62 @@
 package academy.mischok.modules.controller;
 
+import academy.mischok.modules.dto.ModuleDto;
+import academy.mischok.modules.exception.ModuleNotFoundException;
+import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
 import academy.mischok.modules.model.Module;
 import academy.mischok.modules.service.ModuleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.azure.core.annotation.Delete;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/modules")
+@RequestMapping("/module")
+@RequiredArgsConstructor
 public class ModuleController {
 
-    @Autowired
-    private ModuleService moduleService;
+    private final ModuleService moduleService;
 
-    @GetMapping
-    public List<Module> getAllModules() {
-        return moduleService.getAllModules();
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
+    public ResponseEntity<Void> createModule(@RequestBody ModuleDto moduleDto) throws ModuleWithNameAlreadyExistsException {
+        return ResponseEntity.created(URI.create(String.format("/module/%s",
+                this.moduleService.createModule(moduleDto).getId()))).build();
     }
 
     @GetMapping("/{id}")
-    public Optional<Module> getModule(@PathVariable Long id) {
-        return moduleService.getModule(id);
-    }
-
-    @PostMapping
-    public Module saveModule(@RequestBody Module module) {
-        return moduleService.saveModule(module);
+    public ResponseEntity<ModuleDto> getModule(@PathVariable Long id) {
+        return this.moduleService.findModuleById(id)
+                .map(module -> ModuleDto.builder()
+                        .id(module.getId())
+                        .name(module.getName())
+                        .description(module.getDescription())
+                        .build())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public void deleteModule(@PathVariable Long id) {
-        moduleService.deleteModule(id);
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
+    public ResponseEntity<Void> deleteModule(@PathVariable Long id) throws ModuleNotFoundException {
+        this.moduleService.deleteModule(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ModuleDto>> getModules(@RequestParam(required = false) String name) {
+        final List<Module> list = name == null ? this.moduleService.findModules() : this.moduleService.findModulesByNameLike(name);
+        return ResponseEntity.ok(list
+                .stream()
+                .map(module -> ModuleDto.builder()
+                        .id(module.getId())
+                        .name(module.getName())
+                        .description(module.getDescription())
+                        .build())
+                .toList());
     }
 }
