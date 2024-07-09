@@ -1,18 +1,18 @@
-package academy.mischok.modules.model;
+package academy.mischok.modules.model.project;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
-public class TeamEntity {
+@Builder
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +21,13 @@ public class TeamEntity {
     private String name;
 
     @OneToMany(mappedBy = "team")
-    private List<TeamMemberEntity> teamMembers;
+    private List<TeamMember> teamMembers;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    private ProjectEntity project;
+    private Project project;
+
+    @Column(name = "team_points")
+    private Integer teamPoints;
+
 }

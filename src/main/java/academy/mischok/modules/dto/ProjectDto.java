@@ -1,4 +1,4 @@
-package academy.mischok.modules.dtos;
+package academy.mischok.modules.dto;
 
 import lombok.Getter;
 import lombok.Setter;
