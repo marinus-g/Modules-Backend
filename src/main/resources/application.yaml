@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:postgres}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            provider: azure
+            client-id: ${AZURE_CLIENT_ID}
+            client-secret: ${AZURE_CLIENT_SECRET}
+            #            scope: openid, profile, email, Group.Read.All
+            scope:
+              - openid
+              - profile
+              - email
+              - https://graph.microsoft.com/Group.Read.All
+        provider:
+          azure:
+            issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0
+logging:
+  level:
+    root: debug
+server:
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        secure: true  # Ensure this is set to true if using HTTPS
+        http-only: true
+        same-site: None
+
