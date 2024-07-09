@@ -16,3 +16,4 @@ logging:
 
 microsoft:
   graph-url: http://localhost:8081
+  redirect-uri: http://localhost:8080

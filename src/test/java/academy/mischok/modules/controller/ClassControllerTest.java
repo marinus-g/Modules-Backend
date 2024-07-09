@@ -13,8 +13,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -100,5 +99,158 @@ class ClassControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()", greaterThan(0)));
+    }
+
+    @Test
+    void testAddModuleToClass_NotFound() throws Exception {
+        mockAuthClient();
+        final String moduleData = """
+                {
+                "name": "classModuleName2",
+                "description": "uniqueModuleDescription"
+                }""";
+
+        String moduleLocation = mockMvc.perform(post("/module")
+                        .content(moduleData)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", containsString("/module/")))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+
+        assert moduleLocation != null;
+
+        final Long moduleId = Long.parseLong(moduleLocation.substring(moduleLocation.lastIndexOf("/") + 1));
+
+        mockMvc.perform(post("/class/0/module/" + moduleId)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testAddModuleToClass_ModuleNotFound() throws Exception {
+        mockAuthClient();
+        final String meClassObject = mockMvc.perform(get("/class/me")
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
+        assert meClassJson.has("id");
+        final long classId = meClassJson.get("id").getAsLong();
+        mockMvc.perform(post("/class/" + classId + "/module/0")
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testAddModuleToClass_AlreadyPresent() throws Exception {
+        mockAuthClient();
+        final String moduleData = """
+                {
+                "name": "classModuleName3",
+                "description": "uniqueModuleDescription"
+                }""";
+        String moduleLocation = mockMvc.perform(post("/module")
+                        .content(moduleData)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", containsString("/module/")))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+        final Long moduleId = Long.parseLong(moduleLocation.substring(moduleLocation.lastIndexOf("/") + 1));
+
+        final String meClassObject = mockMvc.perform(get("/class/me")
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
+        assert meClassJson.has("id");
+        final long classId = meClassJson.get("id").getAsLong();
+        mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testDeleteModuleFromClass() throws Exception {
+        mockAuthClient();
+        final String moduleData = """
+                {
+                "name": "classModuleName4",
+                "description": "uniqueModuleDescription"
+                }""";
+        String moduleLocation = mockMvc.perform(post("/module")
+                        .content(moduleData)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", containsString("/module/")))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+
+        assert moduleLocation != null;
+        final Long moduleId = Long.parseLong(moduleLocation.substring(moduleLocation.lastIndexOf("/") + 1));
+        String contentAsString = mockMvc.perform(get("/class/me")
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonObject meClassJson = JsonParser.parseString(contentAsString).getAsJsonObject();
+        assert meClassJson.has("id");
+        final long classId = meClassJson.get("id").getAsLong();
+        mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isCreated());
+        mockMvc.perform(delete("/class/" + classId + "/module/" + moduleId)
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testDeleteModuleFromClass_ModuleNotFound() throws Exception {
+        mockAuthClient();
+        final String meClassObject = mockMvc.perform(get("/class/me")
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
+        assert meClassJson.has("id");
+        final long classId = meClassJson.get("id").getAsLong();
+        mockMvc.perform(delete("/class/" + classId + "/module/0")
+                        .with(OAuth2TestUtil.mockLecturerOidcLogin())
+                )
+                .andExpect(status().isNotFound());
     }
 }

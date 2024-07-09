@@ -17,7 +17,7 @@ public class TeamMember {
 
     private String userId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
 }

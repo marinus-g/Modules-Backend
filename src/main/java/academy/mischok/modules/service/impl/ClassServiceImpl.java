@@ -124,10 +124,24 @@ public class ClassServiceImpl implements ClassService {
 
     }
 
+    @Override
+    public void removeModuleFromClass(Long classId, Long moduleId) throws SchoolClassNotFoundException, ModuleNotFoundException {
+        SchoolClass schoolClass = repository.findById(classId)
+                .orElseThrow(() -> new SchoolClassNotFoundException(classId));
+        final ClassModule classModule = schoolClass.getModules().stream()
+                .filter(module -> module.getModule().getId().equals(moduleId))
+                .findFirst()
+                .orElseThrow(() -> new ModuleNotFoundException(String.format("Module with id %d not found in class %d", moduleId, classId)));
+        schoolClass.getModules().remove(classModule);
+        repository.save(schoolClass);
+        classModuleRepository.delete(classModule);
+    }
+
     private void fetchClasses() {
         if (lastFetch + 1000 * 60 * 60 > System.currentTimeMillis()) {
             return;
         }
+        lastFetch = System.currentTimeMillis();
         final OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         OAuth2AccessToken accessToken = oAuthClientService.getAccessToken(authentication);
         HttpHeaders headers = new HttpHeaders();
@@ -139,7 +153,6 @@ public class ClassServiceImpl implements ClassService {
             throw new IllegalStateException("Failed to fetch classes");
         }
         JsonObject object = JsonParser.parseString(response.getBody()).getAsJsonObject();
-        lastFetch = System.currentTimeMillis();
         object.get("value").getAsJsonArray().asList().stream()
                 .map(JsonElement::getAsJsonObject)
                 .map(jsonObject
@@ -148,6 +161,7 @@ public class ClassServiceImpl implements ClassService {
                         jsonObject.get("displayName").getAsString())
                 )
                 .filter(schoolClass -> schoolClass.getName().startsWith("U") && schoolClass.getName().endsWith("UFI"))
+                .peek(schoolClass -> System.out.println("schoolClass: " + schoolClass.getClassId()))
                 .forEach(schoolClass -> {
                     repository.findByClassId(schoolClass.getClassId()).ifPresentOrElse(schoolClass1 -> {
                         schoolClass1.setName(schoolClass.getName());

@@ -59,6 +59,14 @@ public class ClassController {
         return ResponseEntity.created(URI.create(String.format("/class/%s/module/%s", classId, moduleId))).build();
     }
 
+    @DeleteMapping(path = "/{classId}/module/{moduleId}")
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
+    public ResponseEntity<Void> removeModuleFromClass(@PathVariable Long classId, @PathVariable Long moduleId) throws ModuleNotFoundException,
+            SchoolClassNotFoundException {
+        this.classService.removeModuleFromClass(classId, moduleId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(path = "/{classId}/module/{moduleId}")
     public ResponseEntity<ClassModuleDto> getClassModule(OAuth2AuthenticationToken token,
                                                          @PathVariable Long classId,
@@ -98,5 +106,4 @@ public class ClassController {
                 )
                 .toList());
     }
-
 }

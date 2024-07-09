@@ -1,6 +1,7 @@
 package academy.mischok.modules.controller;
 
 import academy.mischok.modules.dto.AuthenticationDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
+    private final String redirectUrl;
+
+    public AuthenticationController(@Value("microsoft.redirect-uri") String redirectUrl) {
+        this.redirectUrl = redirectUrl;
+    }
+
     @RequestMapping("/microsoft")
     public String microsoft() {
-        return "redirect:https://academy-u202309-031-2febaeeb9a88.herokuapp.com/";
+        return "redirect:" + redirectUrl;
     }
 
     @GetMapping("/authenticated")

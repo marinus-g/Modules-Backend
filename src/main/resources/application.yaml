@@ -3,6 +3,10 @@ spring:
     url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:postgres}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:postgres}
+    driverClassName: org.postgresql.Driver
+  jpa:
+      hibernate:
+          ddl-auto: update
   security:
     oauth2:
       client:
@@ -33,4 +37,5 @@ server:
         same-site: None
 microsoft:
   graph-url: https://graph.microsoft.com
+  redirect-uri: ${REDIRECT_URI:http://localhost:4200}
 

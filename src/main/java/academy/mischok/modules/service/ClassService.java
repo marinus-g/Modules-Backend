@@ -25,4 +25,6 @@ public interface ClassService {
     List<ClassModule> findClassModules(OAuth2AuthenticationToken token, Long classId) throws SchoolClassNotFoundException, AuthorizationException;
 
     Optional<ClassModule> findClassModule(OAuth2AuthenticationToken token, Long classId, Long moduleId) throws SchoolClassNotFoundException, AuthorizationException;
+
+    void removeModuleFromClass(Long classId, Long moduleId) throws SchoolClassNotFoundException, ModuleNotFoundException;
 }

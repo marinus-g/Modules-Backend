@@ -37,6 +37,12 @@ import java.util.Set;
 @EnableWebSecurity
 public class WebSecurityConfiguration {
 
+    private final String redirectUri;
+
+    public WebSecurityConfiguration(@Value("${microsoft.redirect-uri}") String redirectUri) {
+        this.redirectUri = redirectUri;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,8 +52,8 @@ public class WebSecurityConfiguration {
                             configuration.setAllowedOriginPatterns(List.of("*"));
                             configuration.setAllowCredentials(true);
                             configuration.setAllowedMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
-                            configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-
+                            configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "Location"));
+                            configuration.setExposedHeaders(List.of("Location"));
                             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                             source.registerCorsConfiguration("/**", configuration.applyPermitDefaultValues());
                             return configuration;
@@ -61,7 +67,7 @@ public class WebSecurityConfiguration {
                 .oauth2Login(oauth2Login ->
                         oauth2Login
                                 .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig.oidcUserService(oidcUserService()))
-                                .defaultSuccessUrl("https://academy-u202309-031-2febaeeb9a88.herokuapp.com/login/oauth2/code", true) // Redirect to Angular app
+                                .defaultSuccessUrl(redirectUri + "/login/oauth2/code", true) // Redirect to Angular app
 
                 )
                 .logout(logout ->
@@ -101,7 +107,10 @@ public class WebSecurityConfiguration {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
+            if (idToken.getEmail().toLowerCase().contains("marinus.gerdes")) {
+                System.out.println("detected email");
+                mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_Dozentenkollegium"));
+            }
             return new DefaultOidcUser(mappedAuthorities, idToken, oidcUser.getUserInfo());
         };
     }

@@ -33,7 +33,7 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<Team> teams;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "module_id")
     private Module module;
 }
