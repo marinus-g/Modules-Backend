@@ -1,13 +1,22 @@
 package academy.mischok.modules.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Value;
 
 import java.util.Date;
 
-@Getter
-@Setter
+@Value
+@Builder
 public class ClassModuleDto {
 
-    private Date date;
+    @JsonProperty(value = "class_id")
+    Long classId;
+    @JsonProperty(value = "start_date")
+    String startDate;
+    @JsonProperty(value = "data")
+    ModuleDto data;
+
 }

@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 @Table(name = "class_module")
 @Getter
 @Setter
+@Builder
 public class ClassModule {
 
     @Id

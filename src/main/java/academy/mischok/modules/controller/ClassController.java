@@ -1,15 +1,22 @@
 package academy.mischok.modules.controller;
 
 import academy.mischok.modules.dto.ClassDto;
+import academy.mischok.modules.dto.ClassModuleDto;
+import academy.mischok.modules.dto.ModuleDto;
+import academy.mischok.modules.exception.AuthorizationException;
+import academy.mischok.modules.exception.ModuleAlreadyPresentException;
+import academy.mischok.modules.exception.ModuleNotFoundException;
+import academy.mischok.modules.exception.SchoolClassNotFoundException;
 import academy.mischok.modules.service.ClassService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -18,6 +25,7 @@ import java.util.List;
 public class ClassController {
 
     private final ClassService classService;
+    private final SimpleDateFormat simpleDateFormat;
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
@@ -42,4 +50,53 @@ public class ClassController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PostMapping(path = "/{classId}/module/{moduleId}")
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
+    public ResponseEntity<Void> addModuleToClass(@PathVariable Long classId, @PathVariable Long moduleId) throws ModuleNotFoundException,
+            SchoolClassNotFoundException, ModuleAlreadyPresentException {
+        this.classService.addModuleToClass(classId, moduleId);
+        return ResponseEntity.created(URI.create(String.format("/class/%s/module/%s", classId, moduleId))).build();
+    }
+
+    @GetMapping(path = "/{classId}/module/{moduleId}")
+    public ResponseEntity<ClassModuleDto> getClassModule(OAuth2AuthenticationToken token,
+                                                         @PathVariable Long classId,
+                                                         @PathVariable Long moduleId)
+            throws SchoolClassNotFoundException, AuthorizationException {
+        return this.classService.findClassModule(token, classId, moduleId)
+                .map(classModule -> {
+                    return ClassModuleDto.builder()
+                            .startDate(simpleDateFormat.format(classModule.getStartDate()))
+                            .data(ModuleDto.builder()
+                                    .id(classModule.getModule().getId())
+                                    .name(classModule.getModule().getName())
+                                    .description(classModule.getModule().getDescription())
+                                    .build())
+                            .build();
+                })
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{classId}/modules")
+    public ResponseEntity<List<ClassModuleDto>> getClassModules(OAuth2AuthenticationToken token,
+                                                           @PathVariable Long classId)
+            throws SchoolClassNotFoundException, AuthorizationException {
+        return ResponseEntity.ok(this.classService.findClassModules(token, classId)
+                        .stream()
+                        .map(classModule -> {
+                            return ClassModuleDto.builder()
+                                    .startDate(simpleDateFormat.format(classModule.getStartDate()))
+                                    .data(ModuleDto.builder()
+                                            .id(classModule.getModule().getId())
+                                            .name(classModule.getModule().getName())
+                                            .description(classModule.getModule().getDescription())
+                                            .build())
+                                    .build();
+                        }
+                )
+                .toList());
+    }
+
 }
