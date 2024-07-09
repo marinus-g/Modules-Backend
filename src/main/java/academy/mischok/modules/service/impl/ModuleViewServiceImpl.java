@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @Setter
@@ -39,33 +39,24 @@ public class ModuleViewServiceImpl implements ModuleViewService {
     }
 
     @Override
-    public List<ModuleOverviewDto> getModuleOverviewByUserId(Long userId){
-        List<TeamMemberEntity> teamMembers = teamMemberRepository.findByUserId(userId.toString());
-        List<ModuleOverviewDto> moduleOverview = new ArrayList<>();
-
-        for(TeamMemberEntity teamMember : teamMembers) {
-            TeamEntity team = teamMember.getTeam();
-            if (team != null && team.getProject() != null) {
-                ProjectEntity project = team.getProject();
-                ModuleEntity module = project.getModule();
-                if (module != null) {
-                    List<ClassModuleEntity> classModules = classModuleRepository.findByModuleId(module.getId());
-                    for (ClassModuleEntity classModule : classModules) {
-                        List<ExamMemberEntity> examMembers = examMemberRepository.findByTeamMemberId(teamMember.getId());
-                        for (ExamMemberEntity examMember : examMembers) {
-                            ModuleOverviewDto moduleOverviewDto = new ModuleOverviewDto(
-                                    module.getName(),
-                                    module.getDescription(),
-                                    classModule.getModuleDate(),
-                                    project.getProjectGrade(),
-                                    examMember.getExamGrade()
-                            );
-                            moduleOverview.add(moduleOverviewDto);
-                        }
-                    }
-                }
-            }
-        }
-        return moduleOverview;
+    public List<ModuleOverviewDto> getModuleOverviewByUserId(Long userId) {
+        return teamMemberRepository.findByUserId(userId.toString()).stream()
+                .filter(teamMember -> teamMember.getTeam() != null && teamMember.getTeam().getProject() != null)
+                .flatMap(teamMember -> {
+                    TeamEntity team = teamMember.getTeam();
+                    ProjectEntity project = team.getProject();
+                    ModuleEntity module = project.getModule();
+                    if (module == null) return Stream.empty();
+                    return classModuleRepository.findByModuleId(module.getId()).stream()
+                            .flatMap(classModule -> examMemberRepository.findByTeamMemberId(teamMember.getId()).stream()
+                                    .map(examMember -> new ModuleOverviewDto(
+                                            module.getName(),
+                                            module.getDescription(),
+                                            classModule.getModuleDate(),
+                                            project.getProjectGrade(),
+                                            examMember.getExamGrade()
+                                    )));
+                })
+                .collect(Collectors.toList());
     }
 }
