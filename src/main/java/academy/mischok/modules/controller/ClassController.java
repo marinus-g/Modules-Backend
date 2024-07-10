@@ -11,7 +11,6 @@ import academy.mischok.modules.service.ClassService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,36 +72,45 @@ public class ClassController {
                                                          @PathVariable Long moduleId)
             throws SchoolClassNotFoundException, AuthorizationException {
         return this.classService.findClassModule(token, classId, moduleId)
-                .map(classModule -> {
-                    return ClassModuleDto.builder()
-                            .startDate(simpleDateFormat.format(classModule.getStartDate()))
-                            .data(ModuleDto.builder()
-                                    .id(classModule.getModule().getId())
-                                    .name(classModule.getModule().getName())
-                                    .description(classModule.getModule().getDescription())
-                                    .build())
-                            .build();
-                })
+                .map(classModule -> ClassModuleDto.builder()
+                        .id(classModule.getId())
+                        .startDate(simpleDateFormat.format(classModule.getStartDate()))
+                        .data(ModuleDto.builder()
+                                .id(classModule.getModule().getId())
+                                .name(classModule.getModule().getName())
+                                .description(classModule.getModule().getDescription())
+                                .build())
+                        .build())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{classId}")
+    public ResponseEntity<ClassDto> getClass(OAuth2AuthenticationToken token, @PathVariable Long classId) throws AuthorizationException {
+        return this.classService.findClassById(token, classId)
+                .map(schoolClass -> ClassDto.builder()
+                        .id(schoolClass.getId())
+                        .name(schoolClass.getName())
+                        .build())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{classId}/modules")
     public ResponseEntity<List<ClassModuleDto>> getClassModules(OAuth2AuthenticationToken token,
-                                                           @PathVariable Long classId)
+                                                                @PathVariable Long classId)
             throws SchoolClassNotFoundException, AuthorizationException {
         return ResponseEntity.ok(this.classService.findClassModules(token, classId)
-                        .stream()
-                        .map(classModule -> {
-                            return ClassModuleDto.builder()
-                                    .startDate(simpleDateFormat.format(classModule.getStartDate()))
-                                    .data(ModuleDto.builder()
-                                            .id(classModule.getModule().getId())
-                                            .name(classModule.getModule().getName())
-                                            .description(classModule.getModule().getDescription())
-                                            .build())
-                                    .build();
-                        }
+                .stream()
+                .map(classModule -> ClassModuleDto.builder()
+                        .id(classModule.getId())
+                        .startDate(simpleDateFormat.format(classModule.getStartDate()))
+                        .data(ModuleDto.builder()
+                                .id(classModule.getModule().getId())
+                                .name(classModule.getModule().getName())
+                                .description(classModule.getModule().getDescription())
+                                .build())
+                        .build()
                 )
                 .toList());
     }

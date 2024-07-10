@@ -12,6 +12,8 @@ import java.util.Date;
 @Builder
 public class ClassModuleDto {
 
+    @JsonProperty(value = "id")
+    Long id;
     @JsonProperty(value = "class_id")
     Long classId;
     @JsonProperty(value = "start_date")

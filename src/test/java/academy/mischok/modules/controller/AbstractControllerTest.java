@@ -2,11 +2,7 @@ package academy.mischok.modules.controller;
 
 import academy.mischok.modules.configuration.OAuth2ClientConfiguration;
 import academy.mischok.modules.util.OAuth2TestUtil;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,18 +35,17 @@ public abstract class AbstractControllerTest {
 
     protected OAuth2AuthenticationToken authenticationToken;
 
-    @BeforeAll
-    public static void beforeAll() {
-        WireMockServer wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(8081).httpsPort(8443));
-        wireMockServer.start();
-        configureFor("localhost", 8081);
+    @BeforeEach
+    public void beforeAll() {
         stubFor(WireMock.get(urlEqualTo("/v1.0/groups"))
-                //.withHost(equalTo("graph.microsoft.com"))
+                .withHost(equalTo("graph.microsoft.com"))
                 .willReturn(aResponse()
+
                        // .proxiedFrom("https://graph.microsoft.com")
                         .withHeader("Content-Type", "application/json")
                         .withBodyFile("groups.json")));
     }
+
 
     protected void mockAuthClient() {
         // Mock OidcUser
@@ -75,11 +70,6 @@ public abstract class AbstractControllerTest {
         when(mockClient.getAccessToken()).thenReturn(accessToken);
         // Mock OAuth2AuthorizedClient
         when(authorizedClientService.loadAuthorizedClient("random-id", "random-id")).thenReturn(mockClient);
-    }
-
-    @AfterAll
-    public static void afterAll() {
-        WireMock.shutdownServer();
     }
 
 }

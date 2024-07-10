@@ -16,11 +16,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,14 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("DuplicatedCode")
 @Service
 @RequiredArgsConstructor
 public class ClassServiceImpl implements ClassService {
 
+
+    private static final List<SchoolClass> EMPTY_LIST = List.of();
     private static final String GROUPS_ENDPOINT = "/v1.0/groups";
+    private static final Logger log = LoggerFactory.getLogger(ClassServiceImpl.class);
 
     @Value("${microsoft.graph-url}")
     private String graphUrl;
+
 
     private final OauthClientService oAuthClientService;
     private final RestTemplate restTemplate;
@@ -44,9 +50,18 @@ public class ClassServiceImpl implements ClassService {
     private final ClassModuleRepository classModuleRepository;
     private long lastFetch = 0;
 
-    public List<SchoolClass> findClasses() {
-        fetchClasses();
-        return repository.findAll();
+    @SneakyThrows public List<SchoolClass> findClasses() {
+
+
+        List<SchoolClass> all = Optional.ofNullable(fetchClasses())
+                .filter(schoolClasses -> !schoolClasses.isEmpty())
+                .orElseGet(() -> {
+                    log.info("fetching classes from repository at: {}", System.currentTimeMillis());
+                    return repository.findAll();
+                });
+        log.info("Found {} classes", all.size());
+        log.debug("!!Classes: {} at {}", all, System.currentTimeMillis());
+        return all;
     }
 
     @Override
@@ -115,13 +130,24 @@ public class ClassServiceImpl implements ClassService {
             throw new AuthorizationException("Not authorized to access this class");
         }
         return schoolClass.getModules().stream()
-                .map(classModule -> {
-                    System.out.println("classModule: " + classModule);
-                    return classModule;
-                })
                 .filter(classModule -> classModule.getModule().getId().equals(moduleId))
                 .findFirst();
 
+    }
+
+    @Override
+    public Optional<SchoolClass> findClassById(OAuth2AuthenticationToken token, Long classId) throws AuthorizationException {
+        fetchClasses();
+        final Optional<SchoolClass> schoolClass = repository.findById(classId);
+        if (schoolClass.isEmpty()) {
+            return schoolClass;
+        }
+        final String className = schoolClass.get().getName();
+        if (token.getAuthorities().stream().noneMatch(grantedAuthority
+                -> grantedAuthority.getAuthority().equals("ROLE_" + className) || grantedAuthority.getAuthority().equals("ROLE_Dozentenkollegium"))) {
+            throw new AuthorizationException("Not authorized to access this class");
+        }
+        return schoolClass;
     }
 
     @Override
@@ -137,23 +163,19 @@ public class ClassServiceImpl implements ClassService {
         classModuleRepository.delete(classModule);
     }
 
-    private void fetchClasses() {
+    protected synchronized List<SchoolClass> fetchClasses() {
         if (lastFetch + 1000 * 60 * 60 > System.currentTimeMillis()) {
-            return;
+             return EMPTY_LIST;
         }
-        lastFetch = System.currentTimeMillis();
-        final OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        OAuth2AccessToken accessToken = oAuthClientService.getAccessToken(authentication);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken.getTokenValue());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> entity = OAuthClientServiceImpl.buildHttpEntity(oAuthClientService);
         ResponseEntity<String> response = restTemplate.exchange(graphUrl + GROUPS_ENDPOINT, HttpMethod.GET, entity, String.class);
         if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null) {
             throw new IllegalStateException("Failed to fetch classes");
         }
         JsonObject object = JsonParser.parseString(response.getBody()).getAsJsonObject();
-        object.get("value").getAsJsonArray().asList().stream()
+        lastFetch = System.currentTimeMillis();
+
+        return object.get("value").getAsJsonArray().asList().stream()
                 .map(JsonElement::getAsJsonObject)
                 .map(jsonObject
                         -> new SchoolClass(
@@ -161,15 +183,19 @@ public class ClassServiceImpl implements ClassService {
                         jsonObject.get("displayName").getAsString())
                 )
                 .filter(schoolClass -> schoolClass.getName().startsWith("U") && schoolClass.getName().endsWith("UFI"))
-                .peek(schoolClass -> System.out.println("schoolClass: " + schoolClass.getClassId()))
-                .forEach(schoolClass -> {
-                    repository.findByClassId(schoolClass.getClassId()).ifPresentOrElse(schoolClass1 -> {
-                        schoolClass1.setName(schoolClass.getName());
-                        repository.save(schoolClass1);
-                    }, () -> {
-                        schoolClass.setModules(new ArrayList<>());
-                        repository.save(schoolClass);
-                    });
-                });
+                .map(schoolClass ->
+                        repository.findByClassId(schoolClass.getClassId())
+                                .map(schoolClass1 -> {
+                                    schoolClass1.setName(schoolClass.getName());
+                                    schoolClass1 = repository.saveAndFlush(schoolClass1);
+                                    return schoolClass1;
+                                })
+                                .orElseGet(() -> {
+                                    log.info("Creating new class: {}", schoolClass);
+                                    schoolClass.setModules(new ArrayList<>());
+                                    SchoolClass schoolClass1 =  repository.saveAndFlush(schoolClass);
+                                    return schoolClass1;
+                                }))
+                .toList();
     }
 }

@@ -3,9 +3,10 @@ package academy.mischok.modules.service.impl;
 import academy.mischok.modules.dto.ModuleDto;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
+import academy.mischok.modules.model.ClassModule;
 import academy.mischok.modules.model.Module;
 import academy.mischok.modules.repository.ClassModuleRepository;
-import academy.mischok.modules.repository.ExamMemberRepository;
+import academy.mischok.modules.repository.ExamResultRepository;
 import academy.mischok.modules.repository.ModuleRepository;
 import academy.mischok.modules.repository.ProjectRepository;
 import academy.mischok.modules.service.ModuleService;
@@ -27,7 +28,7 @@ public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final ClassModuleRepository classModuleRepository;
-    private final ExamMemberRepository examMemberRepository;
+    private final ExamResultRepository examMemberRepository;
     private final ProjectRepository projectRepository;
 
     @Override
@@ -66,5 +67,10 @@ public class ModuleServiceImpl implements ModuleService {
             throw new ModuleNotFoundException(id);
         }
         this.moduleRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<ClassModule> findClassModuleById(Long moduleId) {
+        return this.classModuleRepository.findById(moduleId);
     }
 }

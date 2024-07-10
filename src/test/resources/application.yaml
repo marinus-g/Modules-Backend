@@ -15,5 +15,5 @@ logging:
     root: ${TEST_LOG_LEVEL:debug}
 
 microsoft:
-  graph-url: http://localhost:8081
+  graph-url: http://graph.microsoft.com
   redirect-uri: http://localhost:8080

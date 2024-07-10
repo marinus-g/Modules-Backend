@@ -3,6 +3,8 @@ package academy.mischok.modules.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -15,10 +17,14 @@ public class ExamResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "user_id")
-    private String userId;
+    private UUID userId;
 
     @Column(name = "score")
     private Integer score;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state")
+    private ExamState state;
 
     @ManyToOne
     @JoinColumn(name = "exam_id")

@@ -28,5 +28,7 @@ public class ClassModule {
 
     @Column(name = "start_date")
     private Timestamp startDate;
+    @OneToOne
+    private Exam exam;
 
 }

@@ -3,6 +3,8 @@ package academy.mischok.modules.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,12 +20,15 @@ public class Exam {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "date")
+    private Date date;
+
     @Column(name = "max_score")
     private Integer maxScore;
 
-    @ManyToOne
+    @OneToOne
     private ClassModule classModule;
 
     @OneToMany
-    private List<ExamResult> examMember;
+    private List<ExamResult> examResults;
 }

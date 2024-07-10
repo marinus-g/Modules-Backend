@@ -2,6 +2,7 @@ package academy.mischok.modules.controller;
 
 import academy.mischok.modules.configuration.OAuth2ClientConfiguration;
 import academy.mischok.modules.util.OAuth2TestUtil;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(OAuth2ClientConfiguration.class)
+@WireMockTest(httpsEnabled = true, httpsPort = 8080, proxyMode = true)
 class ClassControllerTest extends AbstractControllerTest {
 
     @Test
@@ -252,5 +254,27 @@ class ClassControllerTest extends AbstractControllerTest {
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void findClassById() throws Exception {
+        mockAuthClient();
+        final String meClassObject = mockMvc.perform(get("/class/me")
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
+        assert meClassJson.has("id");
+        final long classId = meClassJson.get("id").getAsLong();
+        mockMvc.perform(get("/class/" + classId)
+                        .with(OAuth2TestUtil.mockOidcLogin())
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("U20230901UFI"))
+                .andExpect(jsonPath("$.id").value(classId));
+
     }
 }

@@ -3,6 +3,7 @@ package academy.mischok.modules.service;
 import academy.mischok.modules.dto.ModuleDto;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
+import academy.mischok.modules.model.ClassModule;
 import academy.mischok.modules.model.Module;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ModuleService {
     Optional<Module> findModuleById(Long id);
 
     void deleteModule(Long id) throws ModuleNotFoundException;
+
+    Optional<ClassModule> findClassModuleById(Long moduleId);
 }
