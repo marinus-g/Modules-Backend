@@ -9,6 +9,9 @@ services:
       - postgres
     env_file:
       - '.env'
+    restart: 'always'
+
+    pull_policy: 'always'
     deploy:
       resources:
         limits:

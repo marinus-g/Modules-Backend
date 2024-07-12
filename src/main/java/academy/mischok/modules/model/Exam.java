@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Exam {
 
     @Id
@@ -30,5 +31,6 @@ public class Exam {
     private ClassModule classModule;
 
     @OneToMany
+    @ToString.Exclude
     private List<ExamResult> examResults;
 }

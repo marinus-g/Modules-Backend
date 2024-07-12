@@ -84,16 +84,16 @@ public class ExamServiceImpl implements ExamService {
         boolean lecturer = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_Dozentenkollegium"));
         if (lecturer) {
-            log.info("Lecturer is trying to access exam with id {}", examId);
             return examRepository.findById(examId);
         } else {
             final OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-            log.info("User with id {} is trying to access exam with id {}", oidcUser.getSubject(), examId);
+            final UUID userId = UUID.fromString(Objects.requireNonNull(oidcUser.getAttribute("oid")).toString());
             return examRepository.findById(examId)
                     .map(exam -> {
-                        exam.setExamResults(List.of(this.examResultRepository.findByUserIdAndExam_Id(UUID.fromString(oidcUser.getSubject()),
+                        exam.setExamResults(List.of(this.examResultRepository.findByUserIdAndExam_Id(userId,
                                 examId)
                                 .orElseThrow(() -> new NoSuchElementException("Exam result not found"))));
+                        log.info("Exam: {}", exam.toString());
                         return exam;
                     });
         }
