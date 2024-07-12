@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.util.List;
+import java.util.UUID;
 
 @Value
 @Builder
@@ -14,16 +15,12 @@ public class ExamDto {
     Long id;
     @JsonProperty("module_id")
     Long moduleId;
-
     @JsonProperty("class_id")
-    Long classId;
-
+    UUID classId;
     @JsonProperty("date")
     String date;
-
     @JsonProperty("max_score")
     Integer maxScore;
-
     @JsonProperty("exam_results")
     List<ExamResultDto> examResults;
 }

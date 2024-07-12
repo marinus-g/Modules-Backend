@@ -1,9 +1,6 @@
 package academy.mischok.modules.controller.advise;
 
-import academy.mischok.modules.exception.ModuleAlreadyPresentException;
-import academy.mischok.modules.exception.ModuleNotFoundException;
-import academy.mischok.modules.exception.ModuleWithNameAlreadyExistsException;
-import academy.mischok.modules.exception.SchoolClassNotFoundException;
+import academy.mischok.modules.exception.*;
 import okhttp3.OkHttp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,5 +39,10 @@ public class ControllerAdvisor {
     @ExceptionHandler(SchoolClassNotFoundException.class)
     public ResponseEntity<String> handleSchoolClassNotFoundException(SchoolClassNotFoundException exception) {
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(ExamAlreadyPresentException.class)
+    public ResponseEntity<String> handleExamAlreadyPresentException(ExamAlreadyPresentException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }

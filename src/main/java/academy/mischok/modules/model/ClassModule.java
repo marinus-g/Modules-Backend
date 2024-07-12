@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,8 +24,9 @@ public class ClassModule {
     @ManyToOne(optional = false)
     @JoinColumn(name = "module_id", nullable = false)
     private Module module;
-    @ManyToOne
-    private SchoolClass schoolClass;
+
+    @Column(name = "school_class")
+    private UUID schoolClass;
 
     @Column(name = "start_date")
     private Timestamp startDate;

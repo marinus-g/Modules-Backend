@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,9 +23,6 @@ public class Module {
     @Column(length = 1000)
     private String description;
 
-    @OneToMany
-    @JoinTable(name = "module_class",
-            joinColumns = @JoinColumn(name = "module_id"),
-            inverseJoinColumns = @JoinColumn(name = "class_id"))
-    private List<SchoolClass> classes;
+    @OneToMany(mappedBy = "module")
+    private List<ClassModule> classes;
 }

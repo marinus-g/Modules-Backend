@@ -10,17 +10,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -28,16 +24,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration {
 
     private final String redirectUri;
+
+    public static final List<String> LECTURER_EMAILS = new ArrayList<>();
 
     public WebSecurityConfiguration(@Value("${microsoft.redirect-uri}") String redirectUri) {
         this.redirectUri = redirectUri;
@@ -107,7 +102,10 @@ public class WebSecurityConfiguration {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            if (idToken.getEmail().toLowerCase().contains("marinus.gerdes")) {
+            System.out.println("DETECTED INCOMING EMAIL:: " + idToken.getEmail().toLowerCase() + " " + LECTURER_EMAILS.contains(idToken.getEmail().toLowerCase()));
+            System.out.println("AUTHORITIES:: " + mappedAuthorities);
+            if (LECTURER_EMAILS.contains(idToken.getEmail().toLowerCase()) && mappedAuthorities.stream()
+                    .noneMatch(a -> a.getAuthority().equals("ROLE_Dozentenkollegium"))) {
                 System.out.println("detected email");
                 mappedAuthorities.add(new SimpleGrantedAuthority("ROLE_Dozentenkollegium"));
             }

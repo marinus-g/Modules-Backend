@@ -30,7 +30,7 @@ public class OAuthClientServiceImpl implements OauthClientService {
         return client.getAccessToken();
     }
 
-    static HttpEntity<String> buildHttpEntity(OauthClientService oAuthClientService) {
+    public static HttpEntity<String> buildHttpEntity(OauthClientService oAuthClientService) {
         final OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         OAuth2AccessToken accessToken = oAuthClientService.getAccessToken(authentication);
         HttpHeaders headers = new HttpHeaders();

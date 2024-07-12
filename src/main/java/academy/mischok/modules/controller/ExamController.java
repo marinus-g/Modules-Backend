@@ -4,7 +4,9 @@ import academy.mischok.modules.dto.ExamDto;
 import academy.mischok.modules.dto.ExamResultDto;
 import academy.mischok.modules.exception.InvalidExcelFormatExamException;
 import academy.mischok.modules.exception.ModuleNotFoundException;
+import academy.mischok.modules.model.OAuthUser;
 import academy.mischok.modules.service.ExamService;
+import academy.mischok.modules.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/exam")
@@ -23,6 +26,7 @@ public class ExamController {
 
     private final ExamService examService;
     private final SimpleDateFormat simpleDateFormat;
+    private final UserService userService;
 
 
     @PostMapping(path = "/module/{moduleId}")
@@ -42,7 +46,7 @@ public class ExamController {
                         .builder()
                         .id(exam.getId())
                         .moduleId(exam.getClassModule().getModule().getId())
-                        .classId(exam.getClassModule().getSchoolClass().getId())
+                        .classId(exam.getClassModule().getSchoolClass())
                         .maxScore(exam.getMaxScore())
                         .date(simpleDateFormat.format(exam.getDate()))
                         .examResults(exam
@@ -53,6 +57,9 @@ public class ExamController {
                                         .userId(examResult.getUserId())
                                         .score(examResult.getScore())
                                         .grade(examService.calculateGrade(examResult.getScore(), exam.getMaxScore()))
+                                        .lastName(userService.findUserById(examResult.getUserId()).map(OAuthUser::getLastName).orElse(null))
+                                        .firstName(userService.findUserById(examResult.getUserId()).map(OAuthUser::getFirstName).orElse(null))
+                                        .state(examResult.getState())
                                         .build())
                                 .toList())
                         .build())

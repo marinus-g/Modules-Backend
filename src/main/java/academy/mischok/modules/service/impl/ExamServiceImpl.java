@@ -3,8 +3,10 @@ package academy.mischok.modules.service.impl;
 import academy.mischok.modules.exception.InvalidExcelFormatExamException;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.model.*;
+import academy.mischok.modules.repository.ClassModuleRepository;
 import academy.mischok.modules.repository.ExamRepository;
 import academy.mischok.modules.repository.ExamResultRepository;
+import academy.mischok.modules.service.ClassService;
 import academy.mischok.modules.service.ExamService;
 import academy.mischok.modules.service.ModuleService;
 import academy.mischok.modules.service.UserService;
@@ -13,22 +15,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ExamServiceImpl implements ExamService {
 
+    private final ClassService classService;
     private final UserService userService;
     private final ModuleService moduleService;
     private final ExamRepository examRepository;
@@ -36,17 +40,24 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public Exam uploadExam(MultipartFile file, Long moduleId) throws InvalidExcelFormatExamException, ModuleNotFoundException {
+        final ClassModule classModule = moduleService.findClassModuleById(moduleId).orElseThrow(() ->
+                new ModuleNotFoundException("Classmodule with id " + moduleId + " not found"));
+        if (Objects.nonNull(classModule.getExam())) {
+            throw new InvalidExcelFormatExamException("Exam already uploaded");
+        }
         Workbook workbook = multipartFileToExcelWorkbook(file);
         if (workbook == null) {
             throw new InvalidExcelFormatExamException("Invalid Excel format");
         }
-        final ClassModule classModule = moduleService.findClassModuleById(moduleId).orElseThrow(() ->
-                new ModuleNotFoundException("Classmodule with id " + moduleId + " not found"));
-        Exam exam = examRepository.save(Exam
-                .builder()
-                .classModule(classModule)
-                .examResults(new ArrayList<>())
-                .build());
+        Exam exam = examRepository.findByClassModule_Id(moduleId)
+                .map(exam1 -> {
+                    exam1.getExamResults().clear();
+                    return examRepository.saveAndFlush(exam1);
+                }).orElseGet(() -> examRepository.save(Exam
+                        .builder()
+                        .classModule(classModule)
+                        .examResults(new ArrayList<>())
+                        .build()));
         Sheet sheet = getSheet(workbook);
         int max = sheet.getLastRowNum();
         for (int i = 2; i < max; i++) {
@@ -54,25 +65,63 @@ public class ExamServiceImpl implements ExamService {
             if (result == null) {
                 continue;
             }
-            if (Objects.isNull(result.getScore()) || Objects.isNull(result.getUserId()) || Objects.isNull(result.getState())) {
+            if (Objects.isNull(result.getUserId()) || Objects.isNull(result.getState())) {
                 continue;
             }
             result = examResultRepository.save(result);
             exam.getExamResults().add(result);
         }
-        examRepository.save(exam);
+        exam = examRepository.save(exam);
+        classModule.setExam(exam);
+        classService.save(classModule);
         log.info("Exam with id {} uploaded", exam.getId());
         return exam;
     }
 
     @Override
     public Optional<Exam> findExamById(Long examId) {
-        return this.examRepository.findById(examId);
+        final OAuth2AuthenticationToken authentication = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        boolean lecturer = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_Dozentenkollegium"));
+        if (lecturer) {
+            log.info("Lecturer is trying to access exam with id {}", examId);
+            return examRepository.findById(examId);
+        } else {
+            final OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            log.info("User with id {} is trying to access exam with id {}", oidcUser.getSubject(), examId);
+            return examRepository.findById(examId)
+                    .map(exam -> {
+                        exam.setExamResults(List.of(this.examResultRepository.findByUserIdAndExam_Id(UUID.fromString(oidcUser.getSubject()),
+                                examId)
+                                .orElseThrow(() -> new NoSuchElementException("Exam result not found"))));
+                        return exam;
+                    });
+        }
     }
 
     @Override
     public Integer calculateGrade(Integer score, Integer maxScore) {
-        return 1;
+        if (maxScore == null || maxScore == 0 || score == null) {
+            return null;
+        }
+        final double percentage = this.calculatePercentage(score, maxScore);
+        if (percentage >= 92) {
+            return 1;
+        } else if (percentage >= 81) {
+            return 2;
+        } else if (percentage >= 67) {
+            return 3;
+        } else if (percentage >= 50) {
+            return 4;
+        } else if (percentage >= 30){
+            return 5;
+        } else {
+            return 0;
+        }
+    }
+
+    private double calculatePercentage(Integer score, Integer maxScore) {
+        return (double) score / maxScore * 100;
     }
 
     private ExamResult processRow(Sheet sheet, int i, Exam exam) {
@@ -91,9 +140,9 @@ public class ExamServiceImpl implements ExamService {
 
             switch (registeredRow) {
                 case EMAIL -> {
-                    log.info("User with email {} found", cell.getStringCellValue());
-                    final Optional<UUID> userId = userService.findIdByEmail(cell.getStringCellValue());
+                    final Optional<UUID> userId = userService.findIdByEmail(exam.getClassModule().getSchoolClass(), cell.getStringCellValue());
                     if (userId.isEmpty()) {
+                        log.info("User with email {} not found", cell.getStringCellValue());
                         continue;
                     }
                     examResult.setUserId(userId.get());

@@ -1,5 +1,6 @@
 package academy.mischok.modules.dto;
 
+import academy.mischok.modules.model.ExamState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.deser.std.UUIDDeserializer;
 import lombok.Builder;
@@ -19,4 +20,10 @@ public class ExamResultDto {
     Integer grade;
     @JsonProperty("user_id")
     UUID userId;
+    @JsonProperty("first_name")
+    String firstName;
+    @JsonProperty("last_name")
+    String lastName;
+    @JsonProperty("state")
+    ExamState state;
 }

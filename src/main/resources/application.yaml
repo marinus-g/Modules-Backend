@@ -20,7 +20,9 @@ spring:
               - openid
               - profile
               - email
-              - https://graph.microsoft.com/Group.Read.All
+              - Group.Read.All
+              - User.Read
+              - User.ReadBasic.All
         provider:
           azure:
             issuer-uri: https://login.microsoftonline.com/${AZURE_TENANT_ID}/v2.0

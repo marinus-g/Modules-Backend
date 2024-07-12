@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -20,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(OAuth2ClientConfiguration.class)
-@WireMockTest(httpsEnabled = true, httpsPort = 8080, proxyMode = true)
+@WireMockTest(httpsEnabled = true, httpsPort = 0, proxyMode = true)
 class ClassControllerTest extends AbstractControllerTest {
 
     @Test
@@ -78,7 +80,7 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
@@ -128,7 +130,7 @@ class ClassControllerTest extends AbstractControllerTest {
 
         final Long moduleId = Long.parseLong(moduleLocation.substring(moduleLocation.lastIndexOf("/") + 1));
 
-        mockMvc.perform(post("/class/0/module/" + moduleId)
+        mockMvc.perform(post("/class/" + UUID.randomUUID() + "/module/" + moduleId)
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
                 .andExpect(status().isNotFound());
@@ -146,7 +148,7 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(post("/class/" + classId + "/module/0")
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
@@ -183,7 +185,7 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
@@ -226,7 +228,7 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(contentAsString).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(post("/class/" + classId + "/module/" + moduleId)
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
@@ -249,7 +251,7 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(delete("/class/" + classId + "/module/0")
                         .with(OAuth2TestUtil.mockLecturerOidcLogin())
                 )
@@ -268,13 +270,13 @@ class ClassControllerTest extends AbstractControllerTest {
                 .getContentAsString();
         JsonObject meClassJson = JsonParser.parseString(meClassObject).getAsJsonObject();
         assert meClassJson.has("id");
-        final long classId = meClassJson.get("id").getAsLong();
+        final UUID classId = UUID.fromString(meClassJson.get("id").getAsString());
         mockMvc.perform(get("/class/" + classId)
                         .with(OAuth2TestUtil.mockOidcLogin())
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("U20230901UFI"))
-                .andExpect(jsonPath("$.id").value(classId));
+                .andExpect(jsonPath("$.id").value(classId.toString()));
 
     }
 }

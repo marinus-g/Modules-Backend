@@ -20,5 +20,7 @@ public class ClassModuleDto {
     String startDate;
     @JsonProperty(value = "data")
     ModuleDto data;
+    @JsonProperty(value = "exam_id")
+    Long examId;
 
 }
