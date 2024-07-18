@@ -23,7 +23,6 @@ public class DevController {
 
     @PostMapping("/toggle")
     public ResponseEntity<Void> lecturer(OAuth2AuthenticationToken token, HttpServletRequest request) {
-        System.out.println("EMAIL::: " + token.getPrincipal().getAttribute("email"));
         if (WebSecurityConfiguration.LECTURER_EMAILS.contains(Objects.requireNonNull(token.getPrincipal().getAttribute("email")).toString().toLowerCase())) {
             WebSecurityConfiguration.LECTURER_EMAILS.remove(token.getPrincipal().getAttribute("email").toString().toLowerCase());
         } else {

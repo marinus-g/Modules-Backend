@@ -5,6 +5,7 @@ import academy.mischok.modules.exception.ModuleAlreadyPresentException;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.exception.SchoolClassNotFoundException;
 import academy.mischok.modules.model.ClassModule;
+import academy.mischok.modules.model.OAuthUser;
 import academy.mischok.modules.model.SchoolClass;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
@@ -31,4 +32,6 @@ public interface ClassService {
     Optional<SchoolClass> findClassById(OAuth2AuthenticationToken token, UUID classId) throws AuthorizationException;
 
     void save(ClassModule classModule);
+
+    List<OAuthUser> findUsersInClass(UUID classId);
 }

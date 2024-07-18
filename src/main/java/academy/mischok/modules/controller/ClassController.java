@@ -8,6 +8,8 @@ import academy.mischok.modules.exception.ModuleAlreadyPresentException;
 import academy.mischok.modules.exception.ModuleNotFoundException;
 import academy.mischok.modules.exception.SchoolClassNotFoundException;
 import academy.mischok.modules.model.Exam;
+import academy.mischok.modules.model.OAuthUser;
+import academy.mischok.modules.model.project.Project;
 import academy.mischok.modules.service.ClassService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -78,7 +80,9 @@ public class ClassController {
                 .map(classModule -> ClassModuleDto.builder()
                         .id(classModule.getId())
                         .startDate(simpleDateFormat.format(classModule.getStartDate()))
+                        .classId(classModule.getSchoolClass())
                         .examId(Optional.ofNullable(classModule.getExam()).map(Exam::getId).orElse(null))
+                        .projectId(Optional.ofNullable(classModule.getProject()).map(Project::getId).orElse(null))
                         .data(ModuleDto.builder()
                                 .id(classModule.getModule().getId())
                                 .name(classModule.getModule().getName())
@@ -108,6 +112,7 @@ public class ClassController {
                 .stream()
                 .map(classModule -> ClassModuleDto.builder()
                         .id(classModule.getId())
+                        .classId(classModule.getSchoolClass())
                         .startDate(simpleDateFormat.format(classModule.getStartDate()))
                         .data(ModuleDto.builder()
                                 .id(classModule.getModule().getId())
@@ -117,5 +122,11 @@ public class ClassController {
                         .build()
                 )
                 .toList());
+    }
+
+    @GetMapping("/{classId}/users")
+    @PreAuthorize("hasRole('ROLE_Dozentenkollegium')")
+    public ResponseEntity<List<OAuthUser>> getUsersInClass(@PathVariable UUID classId) {
+        return ResponseEntity.ok(this.classService.findUsersInClass(classId));
     }
 }

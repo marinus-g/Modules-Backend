@@ -12,5 +12,7 @@ public interface ClassModuleRepository extends JpaRepository<ClassModule, Long> 
 
     Optional<ClassModule> findBySchoolClassAndModule_Id(UUID schoolClass, Long id);
 
+    boolean existsByModule_IdAndSchoolClass(Long id, UUID schoolClass);
+
 
 }

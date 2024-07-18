@@ -1,5 +1,6 @@
 package academy.mischok.modules.model.project;
 
+import academy.mischok.modules.model.ClassModule;
 import academy.mischok.modules.model.Module;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,16 +25,11 @@ public class Project {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "score")
-    private String score;
-
-    @Column(name = "project_points")
-    private Integer projectPoints;
-
     @OneToMany(mappedBy = "project")
     private List<Team> teams;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "module_id")
-    private Module module;
+    private ClassModule module;
+
 }

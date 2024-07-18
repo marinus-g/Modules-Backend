@@ -1,5 +1,6 @@
 package academy.mischok.modules.model;
 
+import academy.mischok.modules.model.project.Project;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,5 +33,8 @@ public class ClassModule {
     private Timestamp startDate;
     @OneToOne
     private Exam exam;
+
+    @OneToOne
+    private Project project;
 
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @AllArgsConstructor
@@ -18,8 +19,9 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "team")
-    private List<TeamMember> teamMembers;
+    @ElementCollection
+    @CollectionTable(name = "team_members", joinColumns = @JoinColumn(name = "team_id"))
+    private List<UUID> teamMembers;
 
     @ManyToOne
     @JoinColumn(name = "project_id")

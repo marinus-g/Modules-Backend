@@ -1,12 +1,25 @@
 package academy.mischok.modules.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
-@Getter
-@Setter
+import java.util.UUID;
+
+@Value
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
 public class ProjectDto {
 
-    private String grade;
-    private String score;
+    @JsonProperty("id")
+    Long id;
+    @JsonProperty("name")
+    String name;
+    @JsonProperty("description")
+    String description;
+    @JsonProperty("class_id")
+    UUID classId;
+    @JsonProperty("module_id")
+    Long moduleId;
+
 }

@@ -13,6 +13,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -94,5 +95,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<OAuthUser> findUserById(UUID userId) {
         return this.userServiceCache.findUserById(userId);
+    }
+
+    @Override
+    public List<OAuthUser> findUsersInGroup(UUID group) {
+        return this.userServiceCache.findUsersInGroup(group);
     }
 }

@@ -87,11 +87,19 @@ public class ExamServiceImpl implements ExamService {
             return examRepository.findById(examId);
         } else {
             final OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-            final UUID userId = UUID.fromString(Objects.requireNonNull(oidcUser.getAttribute("oid")).toString());
+            UUID userId;
+            try {
+                userId = UUID.fromString(Objects.requireNonNull(oidcUser.getAttribute("oid")).toString());
+
+            } catch (Exception e) {
+                userId = UUID.fromString(Objects.requireNonNull(oidcUser.getName()));
+            }
+
+            UUID finalUserId = userId;
             return examRepository.findById(examId)
                     .map(exam -> {
-                        exam.setExamResults(List.of(this.examResultRepository.findByUserIdAndExam_Id(userId,
-                                examId)
+                        exam.setExamResults(List.of(this.examResultRepository.findByUserIdAndExam_Id(finalUserId,
+                                        examId)
                                 .orElseThrow(() -> new NoSuchElementException("Exam result not found"))));
                         log.info("Exam: {}", exam.toString());
                         return exam;
@@ -113,7 +121,7 @@ public class ExamServiceImpl implements ExamService {
             return 3;
         } else if (percentage >= 50) {
             return 4;
-        } else if (percentage >= 30){
+        } else if (percentage >= 30) {
             return 5;
         } else {
             return 0;

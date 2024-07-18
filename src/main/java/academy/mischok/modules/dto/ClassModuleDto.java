@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.Value;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Value
 @Builder
@@ -15,12 +16,14 @@ public class ClassModuleDto {
     @JsonProperty(value = "id")
     Long id;
     @JsonProperty(value = "class_id")
-    Long classId;
+    UUID classId;
     @JsonProperty(value = "start_date")
     String startDate;
     @JsonProperty(value = "data")
     ModuleDto data;
     @JsonProperty(value = "exam_id")
     Long examId;
+    @JsonProperty(value = "project_id")
+    Long projectId;
 
 }
