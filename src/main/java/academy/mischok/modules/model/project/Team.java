@@ -18,16 +18,11 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
     @OneToMany(mappedBy = "team")
     private List<TeamMember> teamMembers;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
-
-    @Column(name = "team_points")
-    private Integer teamPoints;
 
 }
